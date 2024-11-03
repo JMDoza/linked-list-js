@@ -87,7 +87,84 @@ function doublyLinkedList() {
     return temp;
   };
 
-  
+  const insertAt = (data, index) => {
+    listSize++;
+    if (index <= 0) {
+      if (index < 0) {
+        console.log("Index out of bounds, inserting at Head");
+      }
+      prepend(data);
+      return;
+    } else if (index >= size() - 1) {
+      if (index >= size()) {
+        console.log("Index out of bounds, inserting at Tail");
+      }
+      append(data);
+      return;
+    }
+
+    current = at(index);
+    newNode = listNode(data);
+
+    prevNode = current.prevNode;
+    newNode.nextNode = current;
+    newNode.prevNode = prevNode;
+    current.prevNode = newNode;
+    prevNode.nextNode = newNode;
+  };
+
+  const removeAt = (index) => {
+    listSize--;
+
+    if (index <= 0) {
+      if (index < 0) {
+        console.log("Index out of bounds, removing at head");
+      }
+      dequeue();
+      return;
+    } else if (index >= size()) {
+      if (index >= size() + 1) {
+        console.log("Index out of bounds, removing at Tail");
+      }
+      pop();
+      return;
+    }
+
+    current = at(index);
+
+    prevNode = current.prevNode;
+    nextNode = current.nextNode;
+    prevNode.nextNode = nextNode;
+    nextNode.prevNode = prevNode;
+    current.nextNode = null;
+    current.prevNode = null;
+  };
+
+  const contains = (data) => {
+    current = head;
+    while (current !== null) {
+      if (current.data == data) {
+        return true;
+      }
+      current = current.nextNode;
+    }
+
+    return false;
+  };
+
+  const find = (data) => {
+    pointer = 0;
+    current = head;
+    while (current !== null) {
+      if (current.data == data) {
+        return pointer;
+      }
+      current = current.nextNode;
+      pointer++;
+    }
+
+    return null;
+  };
 
   const toString = (from) => {
     string = "";
@@ -118,6 +195,10 @@ function doublyLinkedList() {
     at,
     pop,
     dequeue,
+    insertAt,
+    removeAt,
+    contains,
+    find,
     toString,
   };
 }
@@ -130,5 +211,9 @@ list.append("parrot");
 list.append("hamster");
 list.append("snake");
 list.append("turtle");
+
+console.log(list.toString("head"));
+
+list.insertAt("est", 2);
 
 console.log(list.toString("head"));
