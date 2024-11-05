@@ -1,18 +1,19 @@
 function doublyLinkedList() {
-  listSize = 0;
-  head = null;
-  tail = null;
+  let listSize = 0;
+  let head = null;
+  let tail = null;
 
-  const listNode = (data) => {
+  const listNode = (key, value) => {
     return {
-      data,
+      key,
+      value,
       nextNode: null,
       prevNode: null,
     };
   };
 
-  const append = (data) => {
-    newNode = listNode(data);
+  const append = (key, value) => {
+    let newNode = listNode(key, value);
     listSize++;
 
     if (head === null) {
@@ -27,8 +28,8 @@ function doublyLinkedList() {
     tail = newNode;
   };
 
-  const prepend = (data) => {
-    newNode = listNode(data);
+  const prepend = (key, value) => {
+    let newNode = listNode(key, value);
     listSize++;
 
     if (tail === null) {
@@ -56,21 +57,38 @@ function doublyLinkedList() {
   };
 
   const at = (index) => {
-    let pointer = 0;
-    let current = head;
+    if (validIndex()) {
+      console.log("Index out of bounds");
+      return null;
+    }
 
-    while (pointer < index) {
-      current = current.nextNode;
-      pointer++;
+    let pointer = 0;
+    let current = null;
+
+    if (index < listSize / 2) {
+      current = head;
+      while (pointer < index) {
+        current = current.nextNode;
+        pointer++;
+      }
+    } else {
+      pointer = listSize - 1;
+      current = tail;
+      while (pointer > index) {
+        current = current.prevNode;
+        pointer--;
+      }
     }
 
     return current;
   };
 
   const pop = () => {
-    temp = tail;
+    const temp = tail;
     tail = temp.prevNode;
-    tail.nextNode = null;
+    if (tail) {
+      tail.nextNode = null;
+    }
     temp.prevNode = null;
     listSize--;
 
@@ -78,33 +96,35 @@ function doublyLinkedList() {
   };
 
   const dequeue = () => {
-    temp = head;
+    const temp = head;
     head = temp.nextNode;
-    head.prevNode = null;
+    if (head) {
+      head.prevNode = null;
+    }
     temp.nextNode = null;
+
     listSize--;
 
     return temp;
   };
 
-  const insertAt = (data, index) => {
-    listSize++;
-    if (index <= 0) {
-      if (index < 0) {
-        console.log("Index out of bounds, inserting at Head");
-      }
-      prepend(data);
-      return;
-    } else if (index >= size() - 1) {
-      if (index >= size()) {
-        console.log("Index out of bounds, inserting at Tail");
-      }
-      append(data);
+  const insertAt = (key, value, index) => {
+    if (validIndex()) {
+      console.log("Index out of bounds");
       return;
     }
 
-    current = at(index);
-    newNode = listNode(data);
+    if (index <= 0) {
+      prepend(key, value);
+      return;
+    } else if (index > size() - 1) {
+      append(key, value);
+      return;
+    }
+
+    listSize++;
+    const current = at(index);
+    newNode = listNode(key, value);
 
     prevNode = current.prevNode;
     newNode.nextNode = current;
@@ -114,23 +134,22 @@ function doublyLinkedList() {
   };
 
   const removeAt = (index) => {
-    listSize--;
+    if (validIndex()) {
+      console.log("Index out of bounds");
+      return;
+    }
 
     if (index <= 0) {
-      if (index < 0) {
-        console.log("Index out of bounds, removing at head");
-      }
       dequeue();
       return;
-    } else if (index >= size()) {
-      if (index >= size() + 1) {
-        console.log("Index out of bounds, removing at Tail");
-      }
+    } else if (index >= size() - 1) {
       pop();
       return;
     }
 
-    current = at(index);
+    listSize--;
+
+    const current = at(index);
 
     prevNode = current.prevNode;
     nextNode = current.nextNode;
@@ -140,10 +159,24 @@ function doublyLinkedList() {
     current.prevNode = null;
   };
 
-  const contains = (data) => {
-    current = head;
+  const replaceAt = (key, value, index) => {
+    if (validIndex()) {
+      console.log("Index out of bounds");
+      return;
+    }
+    console.log(toString("head"));
+
+    removeAt(index);
+    console.log(toString("head"));
+
+    insertAt(key, value, index);
+    console.log(toString("head"));
+  };
+
+  const contains = (key) => {
+    let current = head;
     while (current !== null) {
-      if (current.data == data) {
+      if (current.key == key) {
         return true;
       }
       current = current.nextNode;
@@ -152,11 +185,11 @@ function doublyLinkedList() {
     return false;
   };
 
-  const find = (data) => {
-    pointer = 0;
-    current = head;
+  const find = (key) => {
+    let pointer = 0;
+    let current = head;
     while (current !== null) {
-      if (current.data == data) {
+      if (current.key == key) {
         return pointer;
       }
       current = current.nextNode;
@@ -167,23 +200,59 @@ function doublyLinkedList() {
   };
 
   const toString = (from) => {
-    string = "";
+    let string = "";
+    let current = null;
     if (from === "head") {
       current = head;
       while (current != null) {
-        string += `${current.data} -> `;
+        string += `(${current.key}, ${current.value}) -> `;
         current = current.nextNode;
       }
     } else if (from === "tail") {
       current = tail;
       while (current != null) {
-        string += `${current.data} -> `;
+        string += `(${current.key}, ${current.value}) -> `;
         current = current.prevNode;
       }
     } else {
       return "Invalid Direction!";
     }
-    return string + `${current ? current.data : null}`;
+    return string + `${current ? current.value : null}`;
+  };
+
+  const getKeys = () => {
+    let keyArray = [];
+    let current = head;
+    while (current !== null) {
+      keyArray.push(current.key);
+      current = current.nextNode;
+    }
+    return keyArray;
+  };
+
+  const getValues = () => {
+    let valueArray = [];
+    let current = head;
+    while (current !== null) {
+      valueArray.push(current.value);
+      current = current.nextNode;
+    }
+    return valueArray;
+  };
+
+  const getEntries = () => {
+    let entriesArray = [];
+    let current = head;
+    while (current !== null) {
+      const pair = [current.key, current.value];
+      entriesArray.push(pair);
+      current = current.nextNode;
+    }
+    return entriesArray;
+  };
+
+  const validIndex = (index) => {
+    return size() === 0 || index < 0 || index > size();
   };
 
   return {
@@ -197,6 +266,7 @@ function doublyLinkedList() {
     dequeue,
     insertAt,
     removeAt,
+    replaceAt,
     contains,
     find,
     toString,
